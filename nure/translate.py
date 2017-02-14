@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 import re
 
+import json
+import requests
 import urllib2
 import urllib
 from HTMLParser import HTMLParser
+from requests.adapters import HTTPAdapter
+
 
 
 # from bs4 import BeautifulSoup
@@ -15,9 +19,14 @@ from HTMLParser import HTMLParser
 #
 # http://stackoverflow.com/questions/14369447/how-to-save-back-changes-made-to-a-html-file-using-beautifulsoup-in-python
 #
+# u'[[["你好！","hello there!",,,1]],,"en",,,,1,,[["en"],,[1],["en"]]]'
+#
 
+URL = 'http://translate.google.com/m?hl=%s&sl=%s&q=%s'
+URL_JSON = 'https://translate.google.com/translate_a/single'
+RES_PATT = re.compile(r'^\[\[\["(.+)","')
 
-agent_header = (
+user_agent = (
     "Mozilla/4.0 ("
     "compatible;"
     "MSIE 6.0;"
@@ -28,6 +37,8 @@ agent_header = (
     ".NET CLR 3.0.04506.30"
     ")"
 )
+
+content_type = 'application/json; charset=utf-8'
 
 
 def translate(text, to_lang='auto', from_lang='auto'):
@@ -40,23 +51,73 @@ def translate(text, to_lang='auto', from_lang='auto'):
         >>> translate('hello there!', 'ru')
         Привет!
     """
-    base_link = 'http://translate.google.com/m?hl=%s&sl=%s&q=%s'
     to_translate = urllib.quote_plus(text)
-    link = base_link % (to_lang, from_lang, to_translate)
-    request = urllib2.Request(link, headers=agent)
+    link = URL % (to_lang, from_lang, to_translate)
+    request = urllib2.Request(link, headers={'User-Agent': user_agent})
     raw_data = urllib2.urlopen(request).read()
 
-    data = raw_data.decode("utf-8")
+    # data = raw_data.decode("utf-8")
     expr = r'class="t0">(.*?)<'
-    re_result = re.findall(expr, data)
+    re_result = re.findall(expr, raw_data)
     if len(re_result) == 0:
         result = ''
     else:
-        result = HTMLParser().unescape(re_result[0])
+        resp_text = re_result[0].decode("utf-8")
+        result = HTMLParser().unescape(resp_text)
     return result
 
 
+def json_translate(text, to_lang='auto', from_lang='auto'):
+    session = requests.Session()
+    session.mount('http://', HTTPAdapter(max_retries=2))
+    session.mount('https://', HTTPAdapter(max_retries=2))
+
+    params = {
+        'client': 'gtx',
+        'dt': 't',
+        'sl': from_lang,
+        'tl': to_lang,
+        'q': text
+    }
+    request = requests.Request(
+        method='GET',
+        url=URL_JSON,
+        headers={'User-Agent': user_agent},
+        params=params)
+    prepare = session.prepare_request(request)
+    response = session.send(prepare, verify=True)
+
+    if response.status_code != requests.codes.ok:
+        response.raise_for_status()
+
+    match = re.match(RES_PATT, response.content.decode('utf-8'))
+    if match:
+        return match.groups()[0]
+    return ''
+
+
 if __name__ == '__main__':
-    print translate('hello there!', 'zh_cn')
+
+    tt = """
+1. Links to FAQs in-app will use the encrypted app_id as we do now
+2. App will register for encrypted app_id as it does now
+3. In FB and WebC sends the URL will be `https://dl.agent.ai/{encrypted_appgroup_id}/faq/{faq_id}`
+3a. The dl.agent.ai handler will redirect the {encrypted_appgroup_id} to HelpCenter based on {faq_id}
+4. We will backlog a task for SDKs to support handlers for {encrypted_appgroup_id}
+5. Over time we will deprecate app_id but there is a lot of backend code that deals with this and it would be a LOT of work to just remove it
+
+This means:
+a. No changes to SDKs needed immediately (just deals with {encryped_app_id})
+b. Handler for deeplinks on the agent.ai server needs to support both {encrypted_app_id} and {encrypted_appgroup_id}
+c. When client is Facebook or WebClient we should send links using the {encrypted_appgroup_id}
+d. The Landing Page code will use the {encrypted_app_id}"""
+
+    for _ in range(10):
+        print json_translate('hello there!', 'zh_cn')
+
+    translate = json_translate
     print translate('hello there!', 'ja')
     print translate('hello there!', 'ru')
+
+    for t in tt.split('\n'):
+        print translate(t, 'ru')

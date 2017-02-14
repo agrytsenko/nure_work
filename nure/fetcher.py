@@ -13,6 +13,7 @@ log.addHandler(logging.StreamHandler())
 
 
 def mkdir(path):
+    """Crete directory on file system. Overrides existing one """
     if not path.startswith(WORKING_DIR):
         path = os.path.join(WORKING_DIR, path)
     if os.path.isdir(path):
@@ -22,6 +23,7 @@ def mkdir(path):
 
 
 def check_url(url):
+    """URL should always start with `http` prefix. Add prefix if not specified """
     if not url.startswith('http'):
         log.warn('Incorrect URL syntax. URL should start with http/https')
         url = 'http://' + url
@@ -38,6 +40,7 @@ def parse_url(url):
 
 
 def get_index_page(work_dir, url, default='index.html'):
+    """Returns absolute path to an index page of downloaded resource """
     uu = parse_url(url)
     if not uu.path:
         index = default
