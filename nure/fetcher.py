@@ -18,6 +18,7 @@ def mkdir(path):
         path = os.path.join(WORKING_DIR, path)
     if os.path.isdir(path):
         shutil.rmtree(path)
+    log.debug('Creating a directory: %s', path)
     os.makedirs(path)
     return path
 

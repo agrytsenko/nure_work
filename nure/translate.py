@@ -8,6 +8,8 @@ import urllib
 from HTMLParser import HTMLParser
 from requests.adapters import HTTPAdapter
 
+import settings
+
 
 # from bs4 import BeautifulSoup
 #
@@ -21,18 +23,6 @@ from requests.adapters import HTTPAdapter
 
 URL = 'http://translate.google.com/m?hl=%s&sl=%s&q=%s'
 URL_JSON = 'https://translate.google.com/translate_a/single'
-
-user_agent = (
-    "Mozilla/4.0 ("
-    "compatible;"
-    "MSIE 6.0;"
-    "Windows NT 5.1;"
-    "SV1;"
-    ".NET CLR 1.1.4322;"
-    ".NET CLR 2.0.50727;"
-    ".NET CLR 3.0.04506.30"
-    ")"
-)
 
 content_type = 'application/json; charset=utf-8'
 
@@ -49,7 +39,7 @@ def translate(text, to_lang='auto', from_lang='auto'):
     """
     to_translate = urllib.quote_plus(text)
     link = URL % (to_lang, from_lang, to_translate)
-    request = urllib2.Request(link, headers={'User-Agent': user_agent})
+    request = urllib2.Request(link, headers={'User-Agent': settings.USER_AGENT})
     raw_data = urllib2.urlopen(request).read()
 
     # data = raw_data.decode("utf-8")
@@ -78,7 +68,7 @@ def json_translate(text, to_lang='auto', from_lang='auto'):
     request = requests.Request(
         method='GET',
         url=URL_JSON,
-        headers={'User-Agent': user_agent},
+        headers={'User-Agent': settings.USER_AGENT},
         params=params)
     prepare = session.prepare_request(request)
     resp = session.send(prepare, verify=True)
@@ -107,7 +97,7 @@ if __name__ == '__main__':
 
 This means:
 a. No changes to SDKs needed immediately (just deals with {encryped_app_id})
-b. Handler for deeplinks on the agent.ai server needs to support both {encrypted_app_id} and {encrypted_appgroup_id}
+b. Handler for deeplinks on the my.website.com server needs to support both {encrypted_app_id} and {encrypted_appgroup_id}
 c. When client is Facebook or WebClient we should send links using the {encrypted_appgroup_id}
 d. The Landing Page code will use the {encrypted_app_id}"""
 
