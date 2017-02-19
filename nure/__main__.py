@@ -1,7 +1,7 @@
 import sys
 
 from fetcher import download_page
-from page_utils import translate_page
+from splitter import translate_page
 
 
 def main(site_url):
@@ -12,5 +12,6 @@ def main(site_url):
 if __name__ == '__main__':
     args = sys.argv[1:]
     if not args:
+        print '\n\tUsage: python nure <url>\n'
         sys.exit(0)
     main(args[0])

@@ -3,8 +3,8 @@ import logging
 from logging.config import dictConfig
 
 
-# WORKING_DIR = '/tmp'
-WORKING_DIR = '/Users/alexander/Desktop/'
+WORKING_DIR = '/tmp/'
+# WORKING_DIR = '/Users/alexander/Desktop/'
 
 try:
     # on different OS `wget` might be installer either
