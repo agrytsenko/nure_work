@@ -1,31 +1,21 @@
+import subprocess
+import logging
+from logging.config import dictConfig
 
 
-WORKING_DIR = '/tmp'
+# WORKING_DIR = '/tmp'
+WORKING_DIR = '/Users/alexander/Desktop/'
 
-# on different OS `wget` might be installer either
-# /us/bin/wget of /us/local/bin/wget etc..
 try:
-    import subprocess
-
+    # on different OS `wget` might be installer either
+    # /us/bin/wget of /us/local/bin/wget etc..
     WGET_BIN = subprocess.check_output([
         "/bin/sh", "-c",
         "which wget ; exit 0"
     ], stderr=subprocess.STDOUT).strip()
 except:
     WGET_BIN = '/usr/bin/wget'
-finally:
-    del subprocess
 
-import subprocess
-import sys
-
-WGET_BIN = subprocess.check_output(
-    ["/bin/sh", "-c", "which wget"],
-    stderr=sys.stdout
-).strip()
-
-print type(WGET_BIN)
-print repr(WGET_BIN)
 
 WGET_PARAMS = (
     '--adjust-extension',
@@ -34,6 +24,7 @@ WGET_PARAMS = (
     '--backup-converted',
     '--page-requisites',
     '--no-directories',
+    '--quiet',
 )
 
 WGET_CMD = (WGET_BIN, ) + WGET_PARAMS
@@ -49,5 +40,35 @@ USER_AGENT = (
     ".NET CLR 3.0.04506.30"
     ")"
 )
+
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'level': 'DEBUG',
+            # 'stream': 'ext: // sys.stdout',
+        }
+    },
+    'formatters': {
+        'simple': {
+            'format': '%(message)s',
+        },
+        'default': {
+            'format': '%(asctime)s %(levelname)-8s %(name)-15s %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        }
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
+
+dictConfig(LOGGING)
+logging.getLogger("requests").setLevel(logging.WARNING)
+
 
 

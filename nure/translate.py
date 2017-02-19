@@ -11,16 +11,6 @@ from requests.adapters import HTTPAdapter
 import settings
 
 
-# from bs4 import BeautifulSoup
-#
-# http://py-translate.readthedocs.io/en/latest/devs/api.html
-# https://github.com/jjangsangy/py-translate/blob/master/translate/translator.py
-#
-# http://stackoverflow.com/a/14694669
-#
-# http://stackoverflow.com/questions/14369447/how-to-save-back-changes-made-to-a-html-file-using-beautifulsoup-in-python
-#
-
 URL = 'http://translate.google.com/m?hl=%s&sl=%s&q=%s'
 URL_JSON = 'https://translate.google.com/translate_a/single'
 
@@ -101,7 +91,7 @@ b. Handler for deeplinks on the my.website.com server needs to support both {enc
 c. When client is Facebook or WebClient we should send links using the {encrypted_appgroup_id}
 d. The Landing Page code will use the {encrypted_app_id}"""
 
-    translate = json_translate
+    # translate = json_translate
 
     for _ in range(10):
         print translate('hello there!', 'zh_cn')

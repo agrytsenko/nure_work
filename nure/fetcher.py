@@ -9,7 +9,6 @@ from settings import WORKING_DIR, WGET_CMD
 
 
 log = logging.getLogger(__name__)
-log.addHandler(logging.StreamHandler())
 
 
 def mkdir(path):
@@ -72,5 +71,6 @@ def download_page(url):
 
 if __name__ == '__main__':
     u = 'docs.python.org/2/library/urlparse.html'
+    buggy = 'https://docs.python.org/3/distributing/index.html'
     print download_page(u)
 
